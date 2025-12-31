@@ -3,169 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Metas Pro - Español</title>
+    <title>Master Metas Pro - Personalizado</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .glass {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         .progress-bar { transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .goal-item { transition: all 0.3s ease; }
-        .completed { opacity: 0.5; filter: grayscale(1); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.4s ease forwards; }
+        .completed { opacity: 0.4; filter: grayscale(1); }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .animate-in { animation: fadeIn 0.3s ease forwards; }
         
-        /* Scrollbar personalizada */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 min-h-screen flex items-center justify-center p-4 font-sans text-white">
+<body class="bg-gradient-to-br from-gray-900 via-indigo-950 to-black min-h-screen flex items-center justify-center p-4 font-sans text-white">
 
-    <div class="glass max-w-lg w-full rounded-[2.5rem] p-8 shadow-2xl border border-white/10">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-purple-200">
-                Mis Metas Diarias 🚀
-            </h1>
-            <p id="current-date" class="text-indigo-200 text-sm mt-1 font-medium capitalize"></p>
+    <div id="welcome-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="glass max-w-sm w-full p-8 rounded-[2rem] text-center animate-in">
+            <h2 class="text-2xl font-bold mb-4">¡Bienvenido! 👋</h2>
+            <p class="text-indigo-200 text-sm mb-6">¿Cómo te gustaría que te llame tu asistente de metas?</p>
+            <input type="text" id="userNameInput" placeholder="Tu nombre aquí..." 
+                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <button onclick="saveUser()" class="w-full bg-indigo-500 hover:bg-indigo-600 py-3 rounded-xl font-bold transition-all">Comenzar</button>
+        </div>
+    </div>
+
+    <div id="stats-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="glass max-w-sm w-full p-8 rounded-[2rem] border border-white/20 animate-in">
+            <h2 class="text-2xl font-black mb-6 text-center text-indigo-300">Tu Legado 🏅</h2>
+            <div class="space-y-4 mb-8">
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl">
+                    <span class="text-sm text-indigo-200">Metas Creadas:</span>
+                    <span id="hist-total" class="text-xl font-bold">0</span>
+                </div>
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl">
+                    <span class="text-sm text-indigo-200">Metas Logradas:</span>
+                    <span id="hist-done" class="text-xl font-bold text-emerald-400">0</span>
+                </div>
+                <div class="text-center p-4 bg-indigo-500/20 rounded-xl border border-indigo-500/30">
+                    <p class="text-[10px] uppercase tracking-widest text-indigo-300 mb-1">Rango Actual</p>
+                    <p id="user-rank" class="text-lg font-black text-white italic">Novato</p>
+                </div>
+            </div>
+            <button onclick="toggleStats()" class="w-full bg-white/10 hover:bg-white/20 py-3 rounded-xl font-bold transition-all">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="glass max-w-lg w-full rounded-[2.5rem] p-8 shadow-2xl relative">
+        <div class="flex justify-between items-start mb-6">
+            <button onclick="toggleStats()" class="p-2 hover:bg-white/10 rounded-full transition-all" title="Ver estadísticas">
+                <svg class="w-6 h-6 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            </button>
+            <div class="text-right">
+                <h1 id="main-greeting" class="text-xl font-bold text-white">¡Hola! 🚀</h1>
+                <p id="current-date" class="text-indigo-300 text-[11px] uppercase tracking-tighter"></p>
+            </div>
         </div>
 
-        <div id="quote-container" class="mb-8 p-5 bg-white/5 rounded-2xl border border-white/10 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-            <p id="quote-text" class="text-sm italic font-light leading-relaxed text-indigo-50">
-                "Cargando tu dosis de motivación..."
-            </p>
+        <div class="mb-6 p-4 bg-indigo-500/10 rounded-2xl border-l-4 border-indigo-500 italic text-sm text-indigo-100" id="quote-box">
+            "El éxito es la suma de pequeños esfuerzos."
         </div>
 
         <div class="mb-8">
-            <div class="flex justify-between text-[11px] mb-2 px-1 font-bold uppercase tracking-wider text-indigo-200">
-                <span id="progress-text">0% completado</span>
-                <span id="count-text">0 de 0 metas</span>
+            <div class="flex justify-between text-[10px] mb-2 font-bold text-indigo-300 uppercase">
+                <span id="progress-percent">0%</span>
+                <span id="progress-count">0/0 METAS</span>
             </div>
-            <div class="w-full bg-black/40 rounded-full h-3 p-[2px]">
-                <div id="progress-fill" class="progress-bar h-full bg-gradient-to-r from-orange-400 via-yellow-400 to-emerald-400 rounded-full w-0 shadow-[0_0_10px_rgba(52,211,153,0.3)]"></div>
+            <div class="w-full bg-black/40 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-indigo-500 to-emerald-400 w-0"></div>
             </div>
         </div>
 
-        <div class="space-y-4 mb-8">
-            <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="goalInput" placeholder="¿Qué vas a lograr hoy?" 
-                    class="flex-1 px-5 py-3 rounded-2xl bg-white/10 border border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder:text-white/30 text-white">
-                <select id="priorityInput" class="bg-slate-800 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer">
-                    <option value="low">🟢 Baja</option>
-                    <option value="medium">🟡 Media</option>
-                    <option value="high">🔴 Alta</option>
-                </select>
-            </div>
-            <button id="addBtn" class="w-full bg-white text-indigo-900 hover:bg-indigo-50 py-3.5 rounded-2xl font-black shadow-xl transition-all transform active:scale-95 uppercase text-sm tracking-widest">
-                Añadir a mi lista
-            </button>
+        <div class="flex gap-2 mb-8">
+            <input type="text" id="goalInput" placeholder="¿Qué sigue?" class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+            <select id="priorityInput" class="bg-slate-900 border border-white/10 rounded-2xl px-3 text-xs">
+                <option value="low">Baja</option>
+                <option value="medium">Media</option>
+                <option value="high">Alta</option>
+            </select>
+            <button onclick="addGoal()" class="bg-indigo-600 hover:bg-indigo-500 p-3 rounded-2xl transition-all shadow-lg shadow-indigo-900/20">+</button>
         </div>
 
-        <ul id="goalList" class="space-y-3 max-h-[35vh] overflow-y-auto pr-2 custom-scrollbar">
-            </ul>
+        <ul id="goalList" class="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar"></ul>
     </div>
 
     <script>
-        const goalInput = document.getElementById('goalInput');
-        const priorityInput = document.getElementById('priorityInput');
-        const addBtn = document.getElementById('addBtn');
-        const goalList = document.getElementById('goalList');
-        const progressFill = document.getElementById('progress-fill');
-        const progressText = document.getElementById('progress-text');
-        const countText = document.getElementById('count-text');
+        // --- ESTADO DE LA APP ---
+        let goals = JSON.parse(localStorage.getItem('goals_v3')) || [];
+        let stats = JSON.parse(localStorage.getItem('stats_v3')) || { totalCreated: 0, totalDone: 0 };
+        let userName = localStorage.getItem('userName_v3');
 
-        let goals = JSON.parse(localStorage.getItem('proGoalsV2')) || [];
+        // --- INICIALIZACIÓN ---
+        window.onload = () => {
+            if (!userName) {
+                document.getElementById('welcome-modal').classList.remove('hidden');
+            } else {
+                updateUI();
+            }
+            renderGoals();
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', options);
+        };
 
-        // --- FECHA EN ESPAÑOL ---
-        const options = { weekday: 'long', day: 'numeric', month: 'long' };
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-ES', options);
-
-        // --- FRASES EN ESPAÑOL ---
-        const frasesEspanol = [
-            "No cuentes los días, haz que los días cuenten.",
-            "Tu único límite eres tú mismo.",
-            "El éxito es la suma de pequeños esfuerzos repetidos cada día.",
-            "Hazlo ahora, a veces 'después' se convierte en 'nunca'.",
-            "La disciplina te llevará donde la motivación no alcance.",
-            "Cada meta comienza con la decisión de intentarlo.",
-            "Si puedes imaginarlo, puedes crearlo.",
-            "No te detengas hasta que estés orgulloso."
-        ];
-
-        function getSpanishQuote() {
-            const fraseAzar = frasesEspanol[Math.floor(Math.random() * frasesEspanol.length)];
-            document.getElementById('quote-text').innerHTML = `“${fraseAzar}”`;
+        // --- USUARIO ---
+        function saveUser() {
+            const name = document.getElementById('userNameInput').value.trim();
+            if (name) {
+                localStorage.setItem('userName_v3', name);
+                userName = name;
+                document.getElementById('welcome-modal').classList.add('hidden');
+                updateUI();
+            }
         }
 
-        // --- LÓGICA CORE ---
-        function updateStats() {
-            const total = goals.length;
-            const completed = goals.filter(g => g.completed).length;
-            const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-
-            progressFill.style.width = `${percent}%`;
-            progressText.innerText = `${percent}% completado`;
-            countText.innerText = `${completed} de ${total} metas`;
-            
-            localStorage.setItem('proGoalsV2', JSON.stringify(goals));
+        function updateUI() {
+            document.getElementById('main-greeting').innerText = `¡Hola, ${userName}! 👋`;
         }
 
-        function renderGoals() {
-            goalList.innerHTML = '';
-            goals.forEach((goal, index) => {
-                const li = document.createElement('li');
-                const priorityStyles = { 
-                    low: 'border-l-emerald-400 bg-emerald-400/5', 
-                    medium: 'border-l-yellow-400 bg-yellow-400/5', 
-                    high: 'border-l-rose-400 bg-rose-400/5' 
-                };
+        // --- ESTADÍSTICAS & MODAL ---
+        function toggleStats() {
+            const modal = document.getElementById('stats-modal');
+            if (modal.classList.contains('hidden')) {
+                document.getElementById('hist-total').innerText = stats.totalCreated;
+                document.getElementById('hist-done').innerText = stats.totalDone;
                 
-                li.className = `goal-item animate-in flex items-center justify-between p-4 rounded-2xl border-l-4 ${priorityStyles[goal.priority]} ${goal.completed ? 'completed' : ''} border-y border-r border-white/5`;
+                let rank = "Novato Aspirante";
+                if (stats.totalDone > 5) rank = "Aprendiz Constante";
+                if (stats.totalDone > 10) rank = "Guerrero de la Productividad";
+                if (stats.totalDone > 25) rank = "Maestro de Metas";
+                document.getElementById('user-rank').innerText = rank;
+                
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // --- LÓGICA DE METAS ---
+        function renderGoals() {
+            const list = document.getElementById('goalList');
+            list.innerHTML = '';
+            
+            goals.forEach((goal, i) => {
+                const li = document.createElement('li');
+                const pColor = { low: 'border-l-emerald-500', medium: 'border-l-yellow-500', high: 'border-l-rose-500' };
+                li.className = `flex items-center justify-between p-4 bg-white/5 rounded-2xl border-l-4 ${pColor[goal.priority]} animate-in ${goal.completed ? 'completed' : ''}`;
                 
                 li.innerHTML = `
-                    <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="toggleGoal(${index})">
-                        <div class="w-6 h-6 rounded-full border-2 border-white/20 flex items-center justify-center transition-all ${goal.completed ? 'bg-emerald-500 border-none' : ''}">
-                            ${goal.completed ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                    <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="toggleGoal(${i})">
+                        <div class="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center ${goal.completed ? 'bg-emerald-500' : ''}">
+                            ${goal.completed ? '✓' : ''}
                         </div>
-                        <span class="text-sm font-medium ${goal.completed ? 'line-through text-white/30' : 'text-white/90'}">${goal.text}</span>
+                        <span class="text-sm">${goal.text}</span>
                     </div>
-                    <button onclick="deleteGoal(${index})" class="p-2 hover:bg-white/10 rounded-xl transition-colors group">
-                        <svg class="w-4 h-4 text-white/20 group-hover:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
+                    <button onclick="deleteGoal(${i})" class="text-white/20 hover:text-rose-400">✕</button>
                 `;
-                goalList.appendChild(li);
+                list.appendChild(li);
             });
-            updateStats();
+
+            const done = goals.filter(g => g.completed).length;
+            const percent = goals.length ? Math.round((done / goals.length) * 100) : 0;
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-percent').innerText = percent + '%';
+            document.getElementById('progress-count').innerText = `${done}/${goals.length} METAS`;
+
+            localStorage.setItem('goals_v3', JSON.stringify(goals));
+            localStorage.setItem('stats_v3', JSON.stringify(stats));
         }
 
         function addGoal() {
-            const text = goalInput.value.trim();
-            const priority = priorityInput.value;
-            if (text) {
-                goals.unshift({ text, priority, completed: false });
-                goalInput.value = '';
+            const input = document.getElementById('goalInput');
+            if (input.value.trim()) {
+                goals.unshift({ text: input.value, priority: document.getElementById('priorityInput').value, completed: false });
+                stats.totalCreated++;
+                input.value = '';
                 renderGoals();
             }
         }
 
-        window.toggleGoal = (i) => { goals[i].completed = !goals[i].completed; renderGoals(); };
-        window.deleteGoal = (i) => { 
-            if(confirm('¿Seguro que quieres eliminar esta meta?')) {
-                goals.splice(i, 1); 
-                renderGoals(); 
-            }
+        window.toggleGoal = (i) => {
+            if (!goals[i].completed) stats.totalDone++; 
+            else stats.totalDone--;
+            goals[i].completed = !goals[i].completed;
+            renderGoals();
         };
 
-        addBtn.addEventListener('click', addGoal);
-        goalInput.addEventListener('keypress', (e) => e.key === 'Enter' && addGoal());
-
-        // Iniciar
-        getSpanishQuote();
-        renderGoals();
+        window.deleteGoal = (i) => {
+            goals.splice(i, 1);
+            renderGoals();
+        };
     </script>
 </body>
 </html>
